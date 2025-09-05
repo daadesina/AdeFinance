@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdeFinance Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-[#0f1117] text-white font-sans">
+  <!-- Sidebar + Main -->
+  <div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-[#141820] p-6 flex flex-col justify-between">
+      <div>
+        <h1 class="text-xl font-bold mb-10"><span class="text-yellow-400">Ade</span>Finance</h1>
+        <nav class="space-y-4">
+          <a href="#" class="flex items-center gap-3 p-2 rounded-lg bg-[#1f242d]">
+            <span>📊</span> Dashboard
+          </a>
+          <a href="#" class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#1f242d]">
+            <span>💳</span> Transactions
+          </a>
+          <a href="#" class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#1f242d]">
+            <span>📑</span> Reports
+          </a>
+          <a href="#" class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#1f242d]">
+            <span>🏷️</span> Categories
+          </a>
+          <a href="#" class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#1f242d]">
+            <span>⚙️</span> Settings
+          </a>
+        </nav>
+      </div>
+      <button class="text-red-500 flex items-center gap-2 mt-10">↪ Sign Out</button>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 overflow-y-auto">
+      <!-- Top Bar -->
+      <header class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Dashboard</h2>
+        <div class="flex items-center gap-4">
+          <input type="date" class="px-2 py-1 rounded bg-[#1f242d] text-white" />
+          <input type="date" class="px-2 py-1 rounded bg-[#1f242d] text-white" />
+          <button class="bg-gray-700 px-3 py-1 rounded">Filter</button>
+          <button class="bg-blue-600 px-3 py-1 rounded">Add</button>
+          <div class="flex items-center gap-2">
+            <div class="bg-gray-500 w-10 h-10 flex items-center justify-center rounded-full">AO</div>
+            <span>Adesina Olagunju</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-[#1f242d] p-4 rounded-xl">
+          <p>Total Balance</p>
+          <h3 class="text-2xl font-bold">₦2,191,453</h3>
+        </div>
+        <div class="bg-[#1f242d] p-4 rounded-xl">
+          <p>Total Income</p>
+          <h3 class="text-2xl font-bold">₦1,091,453</h3>
+        </div>
+        <div class="bg-[#1f242d] p-4 rounded-xl">
+          <p>Total Expenses</p>
+          <h3 class="text-2xl font-bold">₦1,100,000</h3>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-[#1f242d] p-4 rounded-xl">
+          <h3 class="mb-2 font-semibold">Monthly Spending Trend</h3>
+          <canvas id="lineChart"></canvas>
+        </div>
+        <div class="bg-[#1f242d] p-4 rounded-xl">
+          <h3 class="mb-2 font-semibold">Category Breakdown</h3>
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Line Chart
+    new Chart(document.getElementById('lineChart'), {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [
+          {
+            label: 'Income',
+            data: [200000, 400000, 600000, 550000, 500000, 600000, 700000, 800000, 850000, 750000, 650000, 700000],
+            borderColor: 'green',
+            fill: false
+          },
+          {
+            label: 'Expenses',
+            data: [1000000, 900000, 850000, 950000, 1000000, 950000, 900000, 850000, 875000, 950000, 1000000, 1100000],
+            borderColor: 'red',
+            fill: false
+          }
+        ]
+      },
+      options: { responsive: true }
+    });
+
+    // Pie Chart
+    new Chart(document.getElementById('pieChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Transport', 'Rent', 'Health', 'Food'],
+        datasets: [{
+          data: [27.5, 22.7, 18.9, 31.6],
+          backgroundColor: ['#3b82f6', '#22c55e', '#facc15', '#f97316']
+        }]
+      },
+      options: { responsive: true }
+    });
+  </script>
+</body>
+</html>

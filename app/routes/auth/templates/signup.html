@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block base_body %}
+<main class="w-screen h-screen bg-cover bg-center bg-no-repeat md:bg-[url('../static/images/auth_bg.png')]
+            flex flex-col justify-center items-center text-sm p-4">
+
+  <section class="bg-[#FFFFFF]/90  w-full md:w-1/2 lg:w-1/3 
+                  px-5 py-8 flex flex-col items-center gap-y-10 rounded-xl shadow-md">
+    <header class="flex flex-col items-center text-center gap-y-2">
+      <img src="../static/images/logo.png" alt="Logo" class="h-7 w-auto">
+      <p class="text-gray-700">Create your Personal Finance Account</p>
+    </header>
+
+    <form method="POST" class="w-full space-y-5">
+      <!-- Username -->
+      <div class="w-full">
+        <label for="username" class="font-medium">Username</label><br/>
+        <input type="text" id="username" name="username" placeholder="Username" required
+               class="w-full px-3 py-3 bg-inherit focus:ring-0 focus:outline-0
+                      border rounded-md transition">
+      </div>
+
+      <!-- Email -->
+      <div class="w-full">
+        <label for="email" class="font-medium">Email</label><br/>
+        <input type="email" id="email" name="email" placeholder="Email" required 
+              class="w-full px-3 py-3 bg-inherit focus:ring-0 focus:outline-0
+                     border rounded-md transition">
+      </div>
+
+      <!-- Password -->
+      <div class="w-full relative">
+        <label for="password" class="font-medium">Password</label><br/>
+        <input type="password" id="password" name="password" placeholder="Password" required 
+              class="w-full px-3 py-3 bg-inherit focus:ring-0 focus:outline-0
+                     border rounded-md pr-12 transition">
+
+        <!-- Toggle Button -->
+        <button type="button" id="togglePassword" 
+                class="absolute right-3 top-9 text-gray-500 hover:text-gray-700">
+          <i data-feather="eye" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="w-full relative">
+        <label for="confirm_password" class="font-medium">Confirm Password</label><br/>
+        <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required 
+              class="w-full px-3 py-3 bg-inherit focus:ring-0 focus:outline-0
+                     border rounded-md pr-12 transition">
+
+        <!-- Toggle Button -->
+        <button type="button" id="toggleConfirmPassword" 
+                class="absolute right-3 top-9 text-gray-500 hover:text-gray-700">
+          <i data-feather="eye" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Submit -->
+      <div class="w-full space-y-2">
+        <button class="w-full py-3 text-center bg-[#328863] rounded-md font-semibold text-white hover:bg-[#287053] transition">
+          Sign Up
+        </button>
+        <p class="text-center text-gray-600">Already have an account? 
+          <a href="{{ url_for('auth.login') }}" class="underline text-[#1E1EF8] hover:text-blue-600">Sign In</a>
+        </p>
+      </div>
+    </form>
+  </section>
+</main>
+
+<!-- Feather Icons CDN -->
+<script src="https://unpkg.com/feather-icons"></script>
+<script>
+  const passwordInput = document.getElementById("password");
+  const confirmPasswordInput = document.getElementById("confirm_password");
+  const togglePassword = document.getElementById("togglePassword");
+  const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
+
+  let isPasswordVisible = false;
+  let isConfirmPasswordVisible = false;
+
+  togglePassword.addEventListener("click", () => {
+    isPasswordVisible = !isPasswordVisible;
+    passwordInput.type = isPasswordVisible ? "text" : "password";
+    togglePassword.innerHTML = isPasswordVisible 
+      ? '<i data-feather="eye-off" class="w-4 h-4"></i>' 
+      : '<i data-feather="eye" class="w-4 h-4"></i>';
+    feather.replace();
+  });
+
+  toggleConfirmPassword.addEventListener("click", () => {
+    isConfirmPasswordVisible = !isConfirmPasswordVisible;
+    confirmPasswordInput.type = isConfirmPasswordVisible ? "text" : "password";
+    toggleConfirmPassword.innerHTML = isConfirmPasswordVisible 
+      ? '<i data-feather="eye-off" class="w-4 h-4"></i>' 
+      : '<i data-feather="eye" class="w-4 h-4"></i>';
+    feather.replace();
+  });
+
+  feather.replace();
+</script>
+{% endblock %}
