@@ -6,7 +6,7 @@ auth_bp = Blueprint("auth", __name__, template_folder=my_template)
 @auth_bp.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        username = request.form.get("username")
+        full_name = request.form.get("full_name")
         email = request.form.get("email")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
@@ -19,7 +19,7 @@ def signup():
             flash("Email already registered!", "error")
             return redirect(url_for("auth.signup"))
 
-        new_user = User(username=username, email=email)
+        new_user = User(full_name=full_name, email=email)
         new_user.set_password(password)
 
         db.session.add(new_user)
@@ -42,7 +42,7 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
             session["user_id"] = user.id
-            session["username"] = user.username
+            session["full_name"] = user.full_name
             flash("Login successful!", "success")
             return redirect(url_for("dashboard.dashboard"))
 
@@ -52,11 +52,8 @@ def login():
     return render_template("login.html")
 
 
-
-
-
 # Logout
-@auth_bp.route("/logout")
+@auth_bp.route("/logout", methods=['POST'])
 def logout():
     session.clear()
     flash("Logged out successfully!", "info")

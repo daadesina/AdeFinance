@@ -4,6 +4,7 @@ module.exports = {
     './static/**/*.js',
     './app.py'
   ],
+  darkMode: 'class',
   theme: {
     extend: {},
   },

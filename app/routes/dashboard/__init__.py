@@ -1,1 +1,1 @@
-from .logic import dashboard_bp
+from .route import dashboard_bp

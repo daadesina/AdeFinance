@@ -1,0 +1,416 @@
+{% extends 'home_base.html' %}
+{% block home_content %}
+<!-- Main Content -->
+<main class="flex-1 sm:pl-6 pt-6 sm:pt-0 overflow-x-auto mb-5 md:mb-0">
+  <!-- Top Bar -->
+  <header class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+    <div>
+      <h2 class="text-xl sm:text-2xl font-bold">Transactions</h2>
+      <p>Manage your income and expenses</p>
+    </div>
+    <div class="flex flex-wrap gap-2 sm:gap-4">
+      <form id="filterForm" class="flex flex-wrap gap-2 sm:gap-4 items-center">
+        <input type="date" id="date1" class="px-2 py-2 rounded bg-[#0D1320] text-white focus:outline-none cursor-pointer" />
+        <p>—</p>
+        <input type="date" id="date2" class="px-2 py-2 rounded bg-[#0D1320] text-white focus:outline-none cursor-pointer" />
+        <button type="submit" class="bg-gray-700 px-3 py-2 rounded text-sm sm:text-base">Filter</button>
+      </form>
+      <button id="resetBtn" class="bg-green-600 px-3 py-1 rounded text-sm sm:text-base">Reset</button>
+      <button id="addBtn" class="bg-blue-600 px-3 py-1 rounded text-sm sm:text-base">Add</button>
+    </div>
+  </header>
+
+  <!-- Transactions Section -->
+  <div id="transactionsWrap" class="bg-[#0D1320] rounded-xl p-4 overflow-x-auto">
+    <!-- Desktop Table -->
+    <table class="hidden sm:table min-w-full text-sm sm:text-base">
+      <thead>
+        <tr class="text-left border-b border-gray-700">
+          <th class="p-3">Date</th>
+          <th class="p-3">Type</th>
+          <th class="p-3">Category</th>
+          <th class="p-3">Amount</th>
+          <th class="p-3">Notes</th>
+          <th class="p-3">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="transactionTable"></tbody>
+    </table>
+
+    <!-- Mobile Cards -->
+    <div id="transactionCards" class="sm:hidden space-y-3"></div>
+  </div>
+</main>
+
+<!-- --------- ADD MODAL --------- -->
+<div id="addModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-[#0D1320] text-white rounded-xl w-[90%] sm:w-[400px] p-6 relative">
+    <button id="closeAddModal" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+      <i data-feather="x"></i>
+    </button>
+    <h2 class="text-xl font-semibold mb-4">Add Transaction</h2>
+
+    <form id="transactionForm" class="space-y-4">
+      <!-- Type -->
+      <div>
+        <label class="block mb-1 text-sm">Type</label>
+        <select name="type" id="type" class="w-full px-3 py-2 rounded bg-[#1F2937] focus:outline-none" required>
+          <option value="">Select Type</option>
+          <option class="text-white" value="income">Income</option>
+          <option class="text-white" value="expense">Expense</option>
+        </select>
+      </div>
+
+      <!-- Category -->
+      <div id="categoryWrapper" class="hidden">
+        <label class="block mb-1 text-sm">Category</label>
+        <select name="category" id="category" class="w-full px-3 py-2 rounded bg-[#1F2937] focus:outline-none">
+          <option value="">Select Category</option>
+          <option class="text-white" value="food">Food</option>
+          <option class="text-white" value="rent">Rent</option>
+          <option class="text-white" value="transport">Transport</option>
+          <option class="text-white" value="health">Health</option>
+          <option class="text-white" value="other">Other</option>
+        </select>
+      </div>
+
+      <!-- Amount -->
+      <div>
+        <label class="block mb-1 text-sm">Amount</label>
+        <div class="flex rounded px-3 py-2 gap-1 bg-[#1F2937] items-center">
+          <span>₦</span>
+          <input name="amount" type="number" id="amount" placeholder="0.00" step="0.01" class="w-full focus:outline-none" required>
+        </div>
+      </div>
+
+      <!-- Date -->
+      <div>
+        <label class="block mb-1 text-sm">Date</label>
+        <input name="date" type="date" id="date" class="w-full px-3 py-2 rounded bg-[#1F2937] focus:outline-none" required>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <label class="block mb-1 text-sm">Notes</label>
+        <textarea name="notes" id="notes" rows="2" placeholder="Optional" class="w-full px-3 py-2 rounded bg-[#1F2937] focus:outline-none"></textarea>
+      </div>
+
+      <button type="submit" class="w-full bg-blue-600 py-2 rounded-lg font-medium hover:bg-blue-700 transition">Save Transaction</button>
+    </form>
+  </div>
+</div>
+
+<!-- --------- EDIT MODAL --------- -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-[#0D1320] text-white rounded-xl w-[90%] sm:w-[400px] p-6 relative">
+    <button id="closeEditModal" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+      <i data-feather="x"></i>
+    </button>
+    <h2 class="text-xl font-semibold mb-4">Edit Transaction</h2>
+
+    <form id="editTransactionForm" class="space-y-4">
+      <input type="hidden" id="edit_id">
+
+      <!-- Type -->
+      <div>
+        <label class="block mb-1 text-sm">Type</label>
+        <select id="edit_type" class="w-full px-3 py-2 rounded bg-[#1F2937] focus:outline-none" required>
+          <option value="">Select Type</option>
+          <option class="text-white" value="income">Income</option>
+          <option class="text-white" value="expense">Expense</option>
+        </select>
+      </div>
+
+      <!-- Category -->
+      <div id="edit_categoryWrapper" class="hidden">
+        <label class="block mb-1 text-sm">Category</label>
+        <select id="edit_category" class="w-full px-3 py-2 rounded bg-[#1F2937] focus:outline-none">
+          <option value="">Select Category</option>
+          <option class="text-white" value="food">Food</option>
+          <option class="text-white" value="rent">Rent</option>
+          <option class="text-white" value="transport">Transport</option>
+          <option class="text-white" value="health">Health</option>
+          <option class="text-white" value="other">Other</option>
+        </select>
+      </div>
+
+      <!-- Amount -->
+      <div>
+        <label class="block mb-1 text-sm">Amount</label>
+        <div class="flex rounded px-3 py-2 gap-1 bg-[#1F2937] items-center">
+          <span>₦</span>
+          <input type="number" id="edit_amount" placeholder="0.00" step="0.01" class="w-full focus:outline-none" required>
+        </div>
+      </div>
+
+      <!-- Date -->
+      <div>
+        <label class="block mb-1 text-sm">Date</label>
+        <input type="date" id="edit_date" class="w-full px-3 py-2 rounded bg-[#1F2937] focus:outline-none" required>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <label class="block mb-1 text-sm">Notes</label>
+        <textarea id="edit_notes" rows="2" placeholder="Optional" class="w-full px-3 py-2 rounded bg-[#1F2937] focus:outline-none"></textarea>
+      </div>
+
+      <button type="submit" class="w-full bg-green-600 py-2 rounded-lg font-medium hover:bg-green-700 transition">Update Transaction</button>
+    </form>
+  </div>
+</div>
+
+<!-- Toast container (for fallback showToast) -->
+<div id="toast-container" class="fixed top-5 right-5 space-y-3 z-50"></div>
+
+<!-- Scripts -->
+<script>
+  // Icons
+  feather.replace();
+
+  // Sidebar toggle (if present)
+  const sidebar = document.getElementById("sidebar");
+  const sidebarToggle = document.getElementById("sidebarToggle");
+  sidebarToggle?.addEventListener("click", () => sidebar.classList.toggle("-translate-x-full"));
+
+  // --- Simple fallback toast (if you already have one globally, this won't override it) ---
+  window.showToast = window.showToast || function (message, type = "info") {
+    const wrap = document.getElementById("toast-container");
+    const el = document.createElement("div");
+    const bg = type === "success" ? "bg-green-600" : type === "error" ? "bg-red-600" : "bg-gray-700";
+    el.className = `px-4 py-2 rounded-lg shadow text-white ${bg}`;
+    el.textContent = message;
+    wrap.appendChild(el);
+    setTimeout(() => { el.classList.add("opacity-0", "transition"); setTimeout(() => el.remove(), 300); }, 2500);
+  };
+
+  // ---------- Data Loading and Rendering ----------
+  async function loadTransactions(params = {}) {
+    try {
+      const res = await axios.get("/api/transaction/", { params });
+      const transactions = res.data.transactions || []; // expect array
+
+      // Desktop table
+      const tableBody = document.getElementById("transactionTable");
+      tableBody.innerHTML = "";
+
+      // Mobile cards
+      const cardContainer = document.getElementById("transactionCards");
+      cardContainer.innerHTML = "";
+
+      transactions.forEach(t => {
+        // --- Table row (desktop) ---
+        const row = document.createElement("tr");
+        row.className = "border-b border-gray-700";
+        row.innerHTML = `
+          <td class="p-3">${t.date}</td>
+          <td class="p-3 ${t.type === "income" ? "text-green-500" : "text-red-500"} font-semibold">${t.type}</td>
+          <td class="p-3">${t.category ?? "—"}</td>
+          <td class="p-3">₦${(Number(t.amount)||0).toLocaleString()}</td>
+          <td class="p-3">${t.notes ? escapeHtml(t.notes) : ""}</td>
+          <td class="p-3">
+            <div class="flex gap-2">
+              <button class="editBtn bg-blue-600 px-2 py-1 rounded text-xs" data-id="${t.id}">Edit</button>
+              <button class="deleteBtn bg-red-600 px-2 py-1 rounded text-xs" data-id="${t.id}">Delete</button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(row);
+
+        // --- Card (mobile) ---
+        const card = document.createElement("div");
+        card.className = "bg-[#1F2937] rounded-lg p-4";
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-gray-400">${t.date}</p>
+            <p class="font-semibold ${t.type === "income" ? "text-green-500" : "text-red-500"}">${t.type}</p>
+          </div>
+          <p class="mt-1"><span class="font-medium">Category:</span> ${t.category ?? "—"}</p>
+          <p><span class="font-medium">Amount:</span> ₦${(Number(t.amount)||0).toLocaleString()}</p>
+          ${t.notes ? `<p class="mt-1"><span class="font-medium">Notes:</span> ${escapeHtml(t.notes)}</p>` : ""}
+          <div class="flex gap-2 mt-3">
+            <button class="editBtn bg-blue-600 px-3 py-1 rounded text-xs" data-id="${t.id}">Edit</button>
+            <button class="deleteBtn bg-red-600 px-3 py-1 rounded text-xs" data-id="${t.id}">Delete</button>
+          </div>
+        `;
+        cardContainer.appendChild(card);
+      });
+    } catch (err) {
+      console.error("Error loading transactions:", err);
+      showToast(err.response?.data?.error || "Failed to load transactions", "error");
+    }
+  }
+
+  // ---------- Event Delegation for Edit/Delete ----------
+  document.getElementById("transactionsWrap").addEventListener("click", async (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+
+    // DELETE
+    if (btn.classList.contains("deleteBtn")) {
+      const id = btn.dataset.id;
+      if (!id) return;
+      if (confirm("Are you sure you want to delete this transaction?")) {
+        try {
+          await axios.delete(`/api/transaction/${id}`);
+          showToast("Transaction deleted", "success");
+          await loadTransactions();
+        } catch (err) {
+          showToast(err.response?.data?.error || "Delete failed", "error");
+        }
+      }
+    }
+
+    // EDIT
+    if (btn.classList.contains("editBtn")) {
+      const id = btn.dataset.id;
+      if (!id) return;
+      try {
+        const res = await axios.get(`/api/transaction/${id}`);
+        const tx = res.data; // assuming API returns the object directly
+        openEditModal(tx);
+      } catch (err) {
+        showToast("Failed to load transaction", "error");
+      }
+    }
+  });
+
+  // ---------- Filters ----------
+  document.getElementById("filterForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const start_date = document.getElementById("date1").value || undefined;
+    const end_date = document.getElementById("date2").value || undefined;
+    loadTransactions({ start_date, end_date });
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    document.getElementById("date1").value = "";
+    document.getElementById("date2").value = "";
+    loadTransactions();
+  });
+
+  // ---------- ADD TRANSACTION ----------
+  const addBtn = document.getElementById("addBtn");
+  const addModal = document.getElementById("addModal");
+  const closeAddModal = document.getElementById("closeAddModal");
+
+  addBtn.addEventListener("click", () => {
+    addModal.classList.remove("hidden");
+  });
+  closeAddModal.addEventListener("click", () => addModal.classList.add("hidden"));
+  addModal.addEventListener("click", (e) => { if (e.target === addModal) addModal.classList.add("hidden"); });
+
+  const typeSelect = document.getElementById("type");
+  const categoryWrapper = document.getElementById("categoryWrapper");
+  const categorySelect = document.getElementById("category");
+  typeSelect.addEventListener("change", () => toggleCategory(typeSelect.value, categoryWrapper, categorySelect));
+
+  const transactionForm = document.getElementById("transactionForm");
+  transactionForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const formData = {
+      type: typeSelect.value,
+      category: categorySelect.value || null,
+      amount: document.getElementById("amount").value,
+      date: document.getElementById("date").value,
+      notes: document.getElementById("notes").value,
+    };
+
+    try {
+      await axios.post("/api/transaction/", formData);
+      showToast("Transaction added!", "success");
+      transactionForm.reset();
+      toggleCategory("", categoryWrapper, categorySelect); // reset category field visibility
+      addModal.classList.add("hidden");
+      await loadTransactions();
+    } catch (err) {
+      showToast(err.response?.data?.error || "Something went wrong", "error");
+    }
+
+  });
+
+  // ---------- EDIT TRANSACTION ----------
+  const editModal = document.getElementById("editModal");
+  const closeEditModal = document.getElementById("closeEditModal");
+  closeEditModal.addEventListener("click", () => editModal.classList.add("hidden"));
+  editModal.addEventListener("click", (e) => { if (e.target === editModal) editModal.classList.add("hidden"); });
+
+  function openEditModal(transaction) {
+    document.getElementById("edit_id").value = transaction.id;
+    document.getElementById("edit_type").value = transaction.type;
+    document.getElementById("edit_amount").value = transaction.amount;
+    document.getElementById("edit_date").value = transaction.date;
+    document.getElementById("edit_notes").value = transaction.notes || "";
+    document.getElementById("edit_category").value = transaction.category || "";
+
+    toggleCategory(transaction.type, document.getElementById("edit_categoryWrapper"), document.getElementById("edit_category"));
+    editModal.classList.remove("hidden");
+  }
+
+  // Keep category visibility in sync while editing
+  document.getElementById("edit_type").addEventListener("change", (e) => {
+    toggleCategory(e.target.value, document.getElementById("edit_categoryWrapper"), document.getElementById("edit_category"));
+  });
+
+  document.getElementById("editTransactionForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = document.getElementById("edit_id").value;
+    const formData = {
+      type: document.getElementById("edit_type").value,
+      category: document.getElementById("edit_category").value || null,
+      amount: document.getElementById("edit_amount").value,
+      date: document.getElementById("edit_date").value,
+      notes: document.getElementById("edit_notes").value,
+    };
+
+    try {
+      await axios.put(`/api/transaction/${id}`, formData);
+      showToast("Transaction updated!", "success");
+      editModal.classList.add("hidden");
+      await loadTransactions();
+    } catch (err) {
+      showToast(err.response?.data?.error || "Update failed", "error");
+    }
+  });
+
+  // ---------- Helpers ----------
+  function toggleCategory(typeValue, wrapperEl, selectEl) {
+    if (typeValue === "expense") {
+      wrapperEl.classList.remove("hidden");
+      selectEl.setAttribute("required", "true");
+    } else {
+      wrapperEl.classList.add("hidden");
+      selectEl.removeAttribute("required");
+      selectEl.value = "";
+    }
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, s => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[s]));
+  }
+
+  // Initial load
+  loadTransactions();
+</script>
+
+
+<!-- For Select -->
+   <script>
+        // Utility to trigger date picker programmatically
+        function openDatePicker(input) {
+            if (typeof input.showPicker === "function") {
+              input.showPicker(); // Supported in modern browsers (Chrome, Edge)
+            } else {
+              input.focus(); // Fallback
+            }
+        }
+
+        const date1 = document.getElementById("date1");
+        const date2 = document.getElementById("date2");
+        const add_date = document.getElementById("date");
+
+        add_date.addEventListener("focus", () => openDatePicker(add_date));
+        date1.addEventListener("focus", () => openDatePicker(date1));
+        date2.addEventListener("focus", () => openDatePicker(date2));
+      </script>
+{% endblock %}

@@ -1,123 +1,325 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AdeFinance Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-[#0f1117] text-white font-sans">
-  <!-- Sidebar + Main -->
-  <div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-[#141820] p-6 flex flex-col justify-between">
-      <div>
-        <h1 class="text-xl font-bold mb-10"><span class="text-yellow-400">Ade</span>Finance</h1>
-        <nav class="space-y-4">
-          <a href="#" class="flex items-center gap-3 p-2 rounded-lg bg-[#1f242d]">
-            <span>📊</span> Dashboard
-          </a>
-          <a href="#" class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#1f242d]">
-            <span>💳</span> Transactions
-          </a>
-          <a href="#" class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#1f242d]">
-            <span>📑</span> Reports
-          </a>
-          <a href="#" class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#1f242d]">
-            <span>🏷️</span> Categories
-          </a>
-          <a href="#" class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#1f242d]">
-            <span>⚙️</span> Settings
-          </a>
-        </nav>
-      </div>
-      <button class="text-red-500 flex items-center gap-2 mt-10">↪ Sign Out</button>
-    </aside>
-
+{% extends 'home_base.html' %}
+{% block home_content %}
     <!-- Main Content -->
-    <main class="flex-1 p-6 overflow-y-auto">
+    <main class="flex-1 sm:pl-6 pt-6 sm:pt-0 overflow-x-auto mb-5 md:mb-0">
       <!-- Top Bar -->
-      <header class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">Dashboard</h2>
-        <div class="flex items-center gap-4">
-          <input type="date" class="px-2 py-1 rounded bg-[#1f242d] text-white" />
-          <input type="date" class="px-2 py-1 rounded bg-[#1f242d] text-white" />
-          <button class="bg-gray-700 px-3 py-1 rounded">Filter</button>
-          <button class="bg-blue-600 px-3 py-1 rounded">Add</button>
-          <div class="flex items-center gap-2">
-            <div class="bg-gray-500 w-10 h-10 flex items-center justify-center rounded-full">AO</div>
-            <span>Adesina Olagunju</span>
-          </div>
+      <header class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+        <div>
+            <h2 class="text-xl sm:text-2xl font-bold">Dashboard</h2>
+            <p>Track your finances at a glance</p>
+        </div>
+        <div class="flex flex-wrap gap-2 sm:gap-4">
+          <form id="filterForm" class="flex flex-wrap gap-2 sm:gap-4 items-center">
+            <input type="date" id="date1" class="px-2 py-2 rounded bg-[#0D1320] text-white focus:outline-none cursor-pointer" />
+            <p>—</p>
+            <input type="date" id="date2" class="px-2 py-2 rounded bg-[#0D1320] text-white focus:outline-none cursor-pointer" />
+            <button type="submit" class="bg-gray-700 px-3 py-2 rounded text-sm sm:text-base">Filter</button>
+          </form>
+          <button id="resetBtn" class="bg-green-600 px-3 py-1 rounded text-sm sm:text-base">Reset</button>
+          <button id="addBtn" class="bg-blue-600 px-3 py-1 rounded text-sm sm:text-base">Add</button>
         </div>
       </header>
 
       <!-- Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div class="bg-[#1f242d] p-4 rounded-xl">
-          <p>Total Balance</p>
-          <h3 class="text-2xl font-bold">₦2,191,453</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+        <div class="bg-[#0D1320] p-4 rounded-xl">
+          <p class="text-sm sm:text-base">Total Balance</p>
+          <h3 data-total="balance" class="text-xl sm:text-2xl font-bold">₦0</h3>
         </div>
-        <div class="bg-[#1f242d] p-4 rounded-xl">
-          <p>Total Income</p>
-          <h3 class="text-2xl font-bold">₦1,091,453</h3>
+        <div class="bg-[#0D1320] p-4 rounded-xl">
+          <p class="text-sm sm:text-base">Total Income</p>
+          <h3 data-total="income" class="text-xl sm:text-2xl font-bold">₦0</h3>
         </div>
-        <div class="bg-[#1f242d] p-4 rounded-xl">
-          <p>Total Expenses</p>
-          <h3 class="text-2xl font-bold">₦1,100,000</h3>
+        <div class="bg-[#0D1320] p-4 rounded-xl">
+          <p class="text-sm sm:text-base">Total Expenses</p>
+          <h3 data-total="expenses" class="text-xl sm:text-2xl font-bold">₦0</h3>
         </div>
       </div>
 
       <!-- Charts -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-[#1f242d] p-4 rounded-xl">
-          <h3 class="mb-2 font-semibold">Monthly Spending Trend</h3>
-          <canvas id="lineChart"></canvas>
+        <div class="bg-[#0D1320] p-4 rounded-xl">
+            <h3 class="mb-2 font-semibold">Monthly Spending Trend</h3>
+            <div class="h-64">
+                <canvas id="lineChart"></canvas>
+            </div>
         </div>
-        <div class="bg-[#1f242d] p-4 rounded-xl">
-          <h3 class="mb-2 font-semibold">Category Breakdown</h3>
-          <canvas id="pieChart"></canvas>
+        <div class="bg-[#0D1320] p-4 rounded-xl">
+            <h3 class="mb-2 font-semibold">Category Breakdown</h3>
+            <div class="h-64">
+                <canvas id="pieChart"></canvas>
+            </div>
         </div>
       </div>
     </main>
-  </div>
+  
 
   <script>
-    // Line Chart
-    new Chart(document.getElementById('lineChart'), {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        datasets: [
-          {
-            label: 'Income',
-            data: [200000, 400000, 600000, 550000, 500000, 600000, 700000, 800000, 850000, 750000, 650000, 700000],
-            borderColor: 'green',
-            fill: false
-          },
-          {
-            label: 'Expenses',
-            data: [1000000, 900000, 850000, 950000, 1000000, 950000, 900000, 850000, 875000, 950000, 1000000, 1100000],
-            borderColor: 'red',
-            fill: false
-          }
-        ]
-      },
-      options: { responsive: true }
+    feather.replace();
+
+    // Sidebar toggle
+    const sidebar = document.getElementById("sidebar");
+    const sidebarToggle = document.getElementById("sidebarToggle");
+    sidebarToggle?.addEventListener("click", () => {
+      sidebar.classList.toggle("-translate-x-full");
     });
 
-    // Pie Chart
-    new Chart(document.getElementById('pieChart'), {
-      type: 'doughnut',
+    // Chart setup
+    const lineChartCtx = document.getElementById('lineChart').getContext('2d');
+    const pieChartCtx = document.getElementById('pieChart').getContext('2d');
+
+    let lineChart = new Chart(lineChartCtx, {
+      type: 'line',
       data: {
-        labels: ['Transport', 'Rent', 'Health', 'Food'],
-        datasets: [{
-          data: [27.5, 22.7, 18.9, 31.6],
-          backgroundColor: ['#3b82f6', '#22c55e', '#facc15', '#f97316']
-        }]
+        labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+        datasets: [
+          { label: 'Income', data: [], borderColor: 'green', backgroundColor: 'rgba(0,128,0,0.1)', fill: true, tension: 0.3 },
+          { label: 'Expenses', data: [], borderColor: 'red', backgroundColor: 'rgba(255,0,0,0.1)', fill: true, tension: 0.3 }
+        ]
       },
-      options: { responsive: true }
+      options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+    });
+
+    let pieChart = new Chart(pieChartCtx, {
+      type: 'doughnut',
+      data: { labels: [], datasets: [{ data: [], backgroundColor: ['#3b82f6','#22c55e','#facc15','#f97316','#ef4444','#8b5cf6'] }] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          datalabels: {
+            color: "#fff",
+            font: { weight: "bold" },
+            formatter: (value, ctx) => {
+              let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+              return (value * 100 / sum).toFixed(1) + "%";
+            }
+          }
+        }
+      },
+      plugins: [ChartDataLabels]
+    });
+
+    // Load initial data
+    async function loadDashboardData(params = {}) {
+      try {
+        const response = await axios.get("/api/transaction/", { params });
+        const data = response.data;
+
+        // Update totals
+        document.querySelector('[data-total="balance"]').textContent = `₦${data.total_balance.toLocaleString()}`;
+        document.querySelector('[data-total="income"]').textContent = `₦${data.total_income.toLocaleString()}`;
+        document.querySelector('[data-total="expenses"]').textContent = `₦${data.total_expenses.toLocaleString()}`;
+
+        // Update charts
+        lineChart.data.datasets[0].data = data.monthly_income;
+        lineChart.data.datasets[1].data = data.monthly_expenses;
+        lineChart.update();
+
+        pieChart.data.labels = data.category_labels;
+        pieChart.data.datasets[0].data = data.category_totals;
+        pieChart.update();
+
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    }
+
+    // Filter handler
+    document.getElementById("filterForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const start_date = document.getElementById("date1").value;
+      const end_date = document.getElementById("date2").value;
+      loadDashboardData({ start_date, end_date });
+    });
+
+    // Initial load
+    loadDashboardData();
+
+    // Reset filter handler
+    const resetBtn = document.getElementById("resetBtn");
+    resetBtn.addEventListener("click", () => {
+      // Clear date inputs
+      document.getElementById("date1").value = "";
+      document.getElementById("date2").value = "";
+
+      // Reload dashboard with no filters
+      loadDashboardData();
     });
   </script>
-</body>
-</html>
+
+
+
+  <!-- For Select -->
+   <script>
+        // Utility to trigger date picker programmatically
+        function openDatePicker(input) {
+            if (typeof input.showPicker === "function") {
+              input.showPicker(); // Supported in modern browsers (Chrome, Edge)
+            } else {
+              input.focus(); // Fallback
+            }
+        }
+
+        const date1 = document.getElementById("date1");
+        const date2 = document.getElementById("date2");
+
+        date1.addEventListener("focus", () => openDatePicker(date1));
+        date2.addEventListener("focus", () => openDatePicker(date2));
+      </script>
+
+
+
+
+<!-- Popup Modal -->
+<div id="addModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-[#0D1320] text-white rounded-xl w-[90%] sm:w-[400px] p-6 relative">
+    
+    <!-- Close Button -->
+    <button id="closeModal" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+      <i data-feather="x"></i>
+    </button>
+
+    <h2 class="text-xl font-semibold mb-4">Add Transaction</h2>
+
+    <form id="transactionForm" class="space-y-4">
+      <!-- Type -->
+      <div>
+        <label class="block mb-1 text-sm">Type</label>
+        <select name="type" id="type" class="w-full px-3 py-2 rounded bg-[#1F2937] focus:outline-none" required>
+          <option value="">Select Type</option>
+          <option class="text-white" value="income">Income</option>
+          <option class="text-white" value="expense">Expense</option>
+        </select>
+      </div>
+
+      <!-- Category (hidden initially) -->
+      <div id="categoryWrapper" class="hidden">
+        <label class="block mb-1 text-sm">Category</label>
+        <select name="category" id="category" class="w-full px-3 py-2 rounded bg-[#1F2937] focus:outline-none">
+          <option value="">Select Category</option>
+          <option class="text-white" value="food">Food</option>
+          <option class="text-white" value="rent">Rent</option>
+          <option class="text-white" value="transport">Transport</option>
+          <option class="text-white" value="health">Health</option>
+          <option class="text-white" value="other">Other</option>
+        </select>
+      </div>
+
+      <!-- Amount -->
+      <div>
+        <label class="block mb-1 text-sm">Amount</label>
+        <div class="flex rounded px-3 py-2 gap-0.5 bg-[#1F2937] items-center">
+          <p>₦</p>
+          <input name="amount" type="number" id="amount" placeholder="0.00"
+              class="w-full focus:outline-none" required>
+        </div>
+      </div>
+
+      <!-- Date -->
+      <div>
+        <label class="block mb-1 text-sm">Date</label>
+        <input name="date" type="date" id="date" 
+              class="w-full px-3 py-2 rounded bg-[#1F2937] focus:outline-none" required>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <label class="block mb-1 text-sm">Notes</label>
+        <textarea name="notes" id="notes" rows="2" placeholder="Optional"
+                  class="w-full px-3 py-2 rounded bg-[#1F2937] focus:outline-none"></textarea>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit"
+              class="w-full bg-blue-600 py-2 rounded-lg font-medium hover:bg-blue-700 transition">
+        Save Transaction
+      </button>
+    </form>
+
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+  const typeSelect = document.getElementById("type");
+  const categoryWrapper = document.getElementById("categoryWrapper");
+  const categorySelect = document.getElementById("category");
+
+  typeSelect.addEventListener("change", () => {
+    if (typeSelect.value === "expense") {
+      categoryWrapper.classList.remove("hidden");
+      categorySelect.setAttribute("required", "true");
+    } else {
+      categoryWrapper.classList.add("hidden");
+      categorySelect.removeAttribute("required");
+      categorySelect.value = ""; // reset when hidden
+    }
+  });
+
+  // Modal controls
+  const addBtn = document.getElementById("addBtn");
+  const addModal = document.getElementById("addModal");
+  const closeModal = document.getElementById("closeModal");
+
+  addBtn.addEventListener("click", () => {
+    addModal.classList.remove("hidden");
+  });
+
+  closeModal.addEventListener("click", () => {
+    addModal.classList.add("hidden");
+  });
+
+  addModal.addEventListener("click", (e) => {
+    if (e.target === addModal) {
+      addModal.classList.add("hidden");
+    }
+  });
+
+  // Dropdown styles
+  const all_select = document.querySelectorAll('select');
+  all_select.forEach(select => {
+    if (select.value === "") {
+      select.classList.add("text-gray-400");
+    }
+    select.addEventListener("change", () => {
+      select.classList.toggle("text-gray-400", select.value === "");
+    });
+  });
+
+  // Submit with Axios
+  const transactionForm = document.getElementById("transactionForm");
+  transactionForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = {
+      type: document.getElementById("type").value,
+      category: document.getElementById("category").value || null,
+      amount: document.getElementById("amount").value,
+      date: document.getElementById("date").value,
+      notes: document.getElementById("notes").value,
+    };
+
+    try {
+      const res = await axios.post("/api/transaction/", formData);
+      showToast("Transaction added!", "success");
+      addModal.classList.add("hidden");
+      transactionForm.reset();
+
+      // (Optional) Reload dashboard data dynamically
+      loadDashboardData();
+
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      showToast(err.response?.data?.error || "Something went wrong", "error");
+    }
+  });
+
+  const add_date = document.getElementById("date")
+  add_date.addEventListener("focus", () => openDatePicker(add_date));
+
+  feather.replace();
+</script>
+
+{% endblock %}

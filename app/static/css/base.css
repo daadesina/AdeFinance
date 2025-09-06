@@ -2,3 +2,34 @@
 body {
     font-family: 'Poppins', sans-serif;
 }
+
+
+/* Hide the calendar icon */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    display: none;
+    -webkit-appearance: none;
+  }
+
+  input[type="date"] {
+    position: relative;
+    cursor: pointer;
+  }
+
+  /* Optional: placeholder style */
+  input[type="date"]:invalid::-webkit-datetime-edit {
+    color: gray;
+  }
+
+
+  /* Chrome, Safari, Edge, Opera */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
